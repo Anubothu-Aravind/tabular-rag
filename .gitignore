@@ -1,0 +1,62 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment & secrets
+.env
+.env.*
+
+# Vector DB / local persistence
+chroma_db/
+
+# Editor / OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Python tooling
+.python-version
+.pytest_cache/
+.mypy_cache/
+ruff_cache/
+
+# Build / packaging
+build/
+dist/
+*.egg-info/
+
+# Logs
+*.log
+
+# Jupyter
+.ipynb_checkpoints/
+
+# UV / Poetry / pip
+uv.lock
+poetry.lock
+
+# Temporary files
+*.tmp
+*.swp
+*~
+.temp/
+*.bak
+*.old
+*.orig
+*.rej
+*.backup
+*.~*
+*.~tmp
+*.~bak
+*.~old
+*.~orig
+*.~rej
+*.~backup
