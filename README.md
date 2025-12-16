@@ -2,26 +2,38 @@
 
 A Retrieval-Augmented Generation (RAG) system for querying tabular data using natural language. This project uses ChromaDB for vector storage, sentence transformers for embeddings, and Ollama for local LLM inference.
 
+No API keys. No cloud dependency. Everything runs on your machine.
+
+
 ## Features
 
-- **Semantic Search**: Query CSV/Excel files using natural language
-- **Local LLM**: Uses Ollama (llama3) for inference - no API keys needed
-- **Vector Storage**: ChromaDB for persistent embedding storage
-- **Data Analysis**: Ask complex questions about your tabular data
+- **Semantic Search on Tables**: Query CSV / Excel files using natural language
+
+- **Local LLM Inference**: Uses Ollama (llama3) entirely offline
+
+- **Persistent Vector Store**: ChromaDB stores embeddings across runs
+
+- **Tabular Reasoning**: Ask aggregation, filtering, comparison, and trend questions
+
+- **Embedding Visualization (2D & 3D)**: PCA and t-SNE plots to inspect embedding quality and clustering
+
 
 ## Prerequisites
 
-Before you begin, ensure you have the following installed:
+Make sure you have the following installed:
 
 1. **Python 3.10+**
-2. **uv** - Fast Python package manager
+2. **uv** – fast Python package manager
    ```bash
    curl -LsSf https://astral.sh/uv/install.sh | sh
    ```
-3. **Ollama** - Local LLM runtime
+
+3. **Ollama** – local LLM runtime
+
    ```bash
    curl -fsSL https://ollama.com/install.sh | sh
    ```
+
 
 ## Quick Start
 
@@ -34,32 +46,26 @@ cd tabular-rag
 
 ### 2. Install Dependencies
 
-Using `uv` to create a virtual environment and install dependencies:
+Create a virtual environment and install dependencies using `uv`:
 
 ```bash
-# Create virtual environment and install dependencies
 uv venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-
-# Install all required packages
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
 uv pip install -r requirements.txt
 ```
 
 ### 3. Start Ollama
 
-In a separate terminal, ensure Ollama is running:
+Run Ollama in a separate terminal:
 
 ```bash
-# Start Ollama service
-ollama serve
-
-# Pull the llama3 model (if not already downloaded)
-ollama pull llama3
+ollama serve    # Start Ollama service
+ollama pull llama3    # Pull the llama3 model (if not already downloaded)
 ```
 
 ### 4. Ingest Your Data
 
-Load your CSV or Excel data into the vector database:
+Load CSV or Excel data into ChromaDB:
 
 ```bash
 python ingest.py
@@ -80,130 +86,184 @@ To ask custom questions, modify the question in [rag_agent.py](rag_agent.py#L51)
 ```python
 from rag_agent import ask
 
-response = ask("What were the total sales in 2023?")
+response = ask("What were the total sales across all years?")
 print(response)
 ```
+
+
+## Embedding Visualization (2D & 3D)
+
+This project includes tooling to visualize embeddings stored in ChromaDB, which is critical for debugging and validating RAG systems.
+
+### What it does
+
+* Loads embeddings directly from ChromaDB
+* Applies:
+
+  * PCA (2D & 3D) for global structure
+  * t-SNE (2D & 3D) for local similarity
+* Saves plots to disk (no UI popups)
+
+### Run visualization
+
+```bash
+python visualize_embeddings.py
+```
+
+### Output structure
+
+```
+graphs/
+├── 2D/
+│   ├── pca_2d.png
+│   └── tsne_2d.png
+└── 3D/
+    ├── pca_3d.png
+    └── tsne_3d.png
+```
+
+Use these plots to:
+
+* Verify semantic clustering
+* Detect poor row-to-text formatting
+* Debug retrieval issues before blaming the LLM
+
 
 ## 📁 Project Structure
 
 ```
 tabular-rag/
 ├── data/
-│   └── vehicle_sales_data.csv    # Sample dataset
-├── chroma_db/                     # Vector database (auto-created)
-├── ingest.py                      # Data ingestion script
-├── rag_agent.py                   # Query interface
-├── llm.py                         # Ollama integration
-├── requirements.txt               # Python dependencies
-└── README.md                      # This file
+│   └── vehicle_sales_data.csv
+├── chroma_db/
+├── graphs/
+│   ├── 2D/
+│   └── 3D/
+├── ingest.py
+├── rag_agent.py
+├── visualize_embeddings.py
+├── llm.py
+├── requirements.txt
+└── README.md
 ```
+
 
 ## How It Works
 
-1. **Ingestion** ([ingest.py](ingest.py)):
-   - Reads CSV/Excel files using pandas
-   - Converts each row into a semantic text representation
-   - Generates embeddings using `all-MiniLM-L6-v2`
-   - Stores embeddings in ChromaDB
+### 1. Ingestion (`ingest.py`)
 
-2. **Retrieval** ([rag_agent.py](rag_agent.py)):
-   - Takes a natural language question
-   - Generates query embedding
-   - Retrieves top-k similar rows from ChromaDB
-   - Passes context + question to LLM
+* Reads CSV / Excel files using pandas
+* Converts each row into a semantic sentence
+* Generates embeddings with `all-MiniLM-L6-v2`
+* Stores embeddings in ChromaDB
 
-3. **Generation** ([llm.py](llm.py)):
-   - Sends prompt to local Ollama instance
-   - Returns natural language response
+### 2. Retrieval (`rag_agent.py`)
+
+* Embeds the user query
+* Retrieves top-k similar rows from ChromaDB
+* Builds a grounded context for the LLM
+
+### 3. Generation (`llm.py`)
+
+* Sends the prompt to Ollama
+* Returns a natural language response
+
 
 ## Example Queries
 
 ```python
-from rag_agent import ask
-
-# Aggregation
 ask("What were the total sales across all years?")
-
-# Filtering
 ask("Which vehicles had sales over 10,000 units?")
-
-# Comparison
 ask("Compare SUV sales vs Sedan sales in 2023")
-
-# Trend analysis
-ask("What's the sales trend for electric vehicles?")
+ask("What is the sales trend over time?")
 ```
+
 
 ## Customization
 
 ### Change the LLM Model
 
-Edit [llm.py](llm.py#L11) to use a different Ollama model:
+Edit `llm.py`:
 
 ```python
 payload = {
-    "model": "llama3.2",  # or mistral, codellama, etc.
+    "model": "llama3.2",
     "prompt": prompt,
     "stream": False
 }
 ```
 
-### Adjust Retrieval Results
 
-Modify the number of rows retrieved in [rag_agent.py](rag_agent.py#L36):
+### Adjust Retrieval Depth
+
+In `rag_agent.py`:
 
 ```python
-def retrieve_rows(query, k=25):  # Change k value
+def retrieve_rows(query, k=25):
     ...
 ```
 
+
 ### Add Your Own Data
 
-1. Place your CSV/Excel file in the `data/` directory
-2. Update the file path in [ingest.py](ingest.py#L58)
-3. Run `python ingest.py` to index the new data
+1. Place your CSV / Excel file in `data/`
+2. Update the file path in `ingest.py`
+3. Re-run ingestion:
+
+   ```bash
+   python ingest.py
+   ```
+
 
 ## Troubleshooting
 
-### Ollama Connection Error
+### Cannot connect to Ollama
 
-```
+```text
 Error: Cannot connect to Ollama
 ```
 
-**Solution**: Ensure Ollama is running:
+Run:
+
 ```bash
 ollama serve
 ```
 
-### Missing Model Error
 
-```
+### Model not found
+
+```text
 Error: model 'llama3' not found
 ```
 
-**Solution**: Pull the model:
+Run:
+
 ```bash
 ollama pull llama3
 ```
 
-### Import Errors
 
-**Solution**: Reinstall dependencies:
+### Dependency issues
+
 ```bash
 uv pip install -r requirements.txt --force-reinstall
 ```
 
+
 ## Dependencies
 
 Key packages used:
+
 - `chromadb` - Vector database
 - `sentence-transformers` - Embedding generation
 - `langchain-core` - Prompt templates
 - `pandas` - Data manipulation
+- `matplotlib` - creating static visualizations
+- `scikit-learn` - for predictive data analysis
 - `requests` - HTTP client for Ollama
 
-See [requirements.txt](requirements.txt) for the complete list.
+See `requirements.txt` for the full list.
+
 
 ## References
 
