@@ -13,3 +13,6 @@ langchain_openai
 langgraph
 pandas
 openpyxl
+matplotlib
+scikit-learn
+mpl-tools
