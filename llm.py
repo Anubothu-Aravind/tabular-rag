@@ -9,7 +9,7 @@ def llm(prompt: str) -> str:
     url = "http://localhost:11434/api/generate"
     
     payload = {
-        "model": "llama3",
+        "model": "mistral",
         "prompt": prompt,
         "stream": False
     }

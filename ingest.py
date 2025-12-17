@@ -57,4 +57,4 @@ def ingest_file(file_path):
 
 
 if __name__ == "__main__":
-    ingest_file("data/vehicle_sales_data.csv")     # change file if needed
+    ingest_file("data/pokemon.csv")     # change file if needed
