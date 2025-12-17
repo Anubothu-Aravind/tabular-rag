@@ -38,7 +38,7 @@ DB_PATH = "./chroma_db"
 COLLECTION_NAME = "tabular_data"
 
 MAX_LEGEND_ITEMS = 10   # max labels before grouping
-BASE_DIR = Path("graphs") / COLLECTION_NAME
+BASE_DIR = Path("graphs")
 DIR_2D = BASE_DIR / "2D"
 DIR_3D = BASE_DIR / "3D"
 
